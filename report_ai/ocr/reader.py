@@ -1,27 +1,29 @@
 import os
 import json
 import mimetypes
+import base64
+
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 load_dotenv()
 
 try:
     import streamlit as st
-    api_key = st.secrets["GEMINI_API_KEY"]
+    api_key = st.secrets["GROQ_API_KEY"]
 except Exception:
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
 
 if not api_key:
-    raise ValueError("GEMINI_API_KEY not found")
+    raise ValueError("GROQ_API_KEY not found")
 
-client = genai.Client(api_key=api_key)
+client = Groq(api_key=api_key)
 
 
 def extract_text_from_image(image_path):
     """
     Extract medical report information from an image
-    using Gemini Vision.
+    using Groq Vision.
     """
 
     if not os.path.exists(image_path):
@@ -36,6 +38,11 @@ def extract_text_from_image(image_path):
     # Read image
     with open(image_path, "rb") as f:
         image_bytes = f.read()
+
+    # Convert image to base64
+    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+
+    image_data_url = f"data:{mime_type};base64,{image_base64}"
 
     prompt = """
 You are a medical report OCR assistant.
@@ -64,31 +71,48 @@ Rules:
 5. If a value is missing or unreadable, use null or "".
 """
 
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=[
-            prompt,
-            {
-                "inline_data": {
-                    "mime_type": mime_type,
-                    "data": image_bytes
-                }
-            }
-        ]
-    )
-
-    result = response.text
-
-    result = result.replace("```json", "").replace("```", "").strip()
-
     try:
+
+        response = client.chat.completions.create(
+           model="qwen/qwen3.8-27b",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": image_data_url
+                            }
+                        }
+                    ]
+                }
+            ],
+            response_format={
+                "type": "json_object"
+            }
+        )
+
+        result = response.choices[0].message.content
+
         return json.loads(result)
 
     except json.JSONDecodeError:
+
         return {
             "raw_text": result
         }
 
+    except Exception as e:
+
+        return {
+            "error": str(e)
+        }
+
 
 if __name__ == "__main__":
-    print("Gemini OCR reader loaded successfully.")
+    print("Groq Vision OCR reader loaded successfully.")

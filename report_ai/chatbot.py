@@ -1,22 +1,22 @@
 import os
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 # Load local .env file
 load_dotenv()
 
-# Get Gemini API key
+# Get Groq API key
 try:
     import streamlit as st
-    api_key = st.secrets["GEMINI_API_KEY"]
+    api_key = st.secrets["GROQ_API_KEY"]
 except Exception:
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
 
 if not api_key:
-    raise ValueError("GEMINI_API_KEY not found")
+    raise ValueError("GROQ_API_KEY not found")
 
-# Gemini client
-client = genai.Client(api_key=api_key)
+# Groq client
+client = Groq(api_key=api_key)
 
 
 def ask_nirmaya_ai(question, report_data=None):
@@ -153,12 +153,17 @@ It is not a substitute for professional medical diagnosis.
 
     try:
 
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
         )
 
-        return response.text
+        return response.choices[0].message.content
 
     except Exception as e:
 
