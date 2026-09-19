@@ -5,6 +5,7 @@ xgboost
 joblib
 matplotlib
 seaborn
+groq
 python-dotenv
 Pillow
 PyMuPDF
