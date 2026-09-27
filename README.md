@@ -819,8 +819,7 @@ Research
 
 Live Demo
 
-👉 https://hybrid-quantum-machine-learning-platform-for-early-disease-det.streamlit.app/
-
+👉https://machine-learning-platform-for-early-disease-detection-dr3mmfqz.streamlit.app/link
 ⭐ Support the Project
 
 If you find NIRAMAYA AI interesting:
