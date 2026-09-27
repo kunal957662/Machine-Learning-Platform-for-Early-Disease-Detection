@@ -3,8 +3,7 @@
 AI-powered platform for multi-disease screening and healthcare assistance
 
 🚀 Live Demo:
-https://hybrid-quantum-machine-learning-platform-for-early-disease-det.streamlit.app/
-
+https://machine-learning-platform-for-early-disease-detection-dr3mmfqz.streamlit.app/link
 
 📌 About the Project
 
